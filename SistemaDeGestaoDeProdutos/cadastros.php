@@ -14,7 +14,6 @@ $mensagem = "";
 $tipoMensagem = "";
 $abaAtiva = "fornecedor";
 
-// Processamento do formulário de cadastro
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['acao']) && $_POST['acao'] === 'cadastrar_fornecedor') {
@@ -91,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 }
 
-// Carrega lista de fornecedores para o dropdown do cadastro de produtos
 try {
 
     $stmtForn = $pdo->query("SELECT id, nome FROM fornecedores ORDER BY nome ASC");
@@ -184,7 +182,6 @@ try {
             <div class="card-body p-4">
                 <div class="tab-content" id="cadastroTabsContent">
 
-                    <!-- ABA CADASTRO FORNECEDOR -->
                     <div class="tab-pane fade <?= $abaAtiva === 'fornecedor' ? 'show active' : ''; ?>" id="fornecedor-pane" role="tabpanel">
                         <form action="cadastros.php" method="POST">
                             <input type="hidden" name="acao" value="cadastrar_fornecedor">
@@ -213,7 +210,6 @@ try {
                         </form>
                     </div>
 
-                    <!-- ABA CADASTRO PRODUTO -->
                     <div class="tab-pane fade <?= $abaAtiva === 'produto' ? 'show active' : ''; ?>" id="produto-pane" role="tabpanel">
 
                         <?php if (empty($fornecedores)): ?>
