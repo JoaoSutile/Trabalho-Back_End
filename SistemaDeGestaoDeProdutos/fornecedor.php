@@ -1,8 +1,14 @@
-<<<<<<< HEAD
 <?php
 
 session_start();
 require_once "conexao.php";
+
+if (!isset($_SESSION["usuario_id"])) {
+
+    header("Location: login.html");
+    exit;
+
+}
 
 try {
 
@@ -25,17 +31,31 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão - Fornecedores</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Gestão de Produtos</a>
-            <div class="d-flex align-items-center text-white">
+            <a class="navbar-brand fw-bold" href="painel.php">Gestão de Produtos</a>
+            <div class="d-flex align-items-center me-auto">
+                <a href="painel.php" class="btn btn-light btn-sm me-2">Painel</a>
                 <a href="cadastros.php" class="btn btn-light btn-sm me-2">Cadastros</a>
-                <a href="produtos.php" class="btn btn-light btn-sm me-3">Ver Produtos / Cesta</a>
-                <a href="login.html" class="btn btn-outline-light btn-sm">Sair</a>
+                <a href="produtos.php" class="btn btn-light btn-sm me-2">Produtos / Cesta</a>
+            </div>
+            <div class="dropdown user-dropdown">
+                <a href="#" class="text-white text-decoration-none dropdown-toggle fw-semibold" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?php echo htmlspecialchars($_SESSION["usuario_nome"] ?? "Usuário"); ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownUser">
+                    <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -46,7 +66,7 @@ try {
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h4 class="card-title m-0 text-primary fw-bold">Lista de Fornecedores</h4>
-                        <a href="cadastros.php" class="btn btn-primary btn-sm">Novo Fornecedor</a>
+                        <a href="cadastros.php" class="btn btn-primary btn-sm">+ Novo Fornecedor</a>
                     </div>
                     <div class="card-body p-4">
 
@@ -97,11 +117,3 @@ try {
 </body>
 
 </html>
-=======
-<?php 
-
-    echo"Teste";
-
-
-?>
->>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
