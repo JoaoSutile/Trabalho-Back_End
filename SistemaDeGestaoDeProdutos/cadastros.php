@@ -2,6 +2,10 @@
 session_start();
 require_once "conexao.php";
 
+<<<<<<< HEAD
+=======
+// Busca os fornecedores cadastrados para popular o select de produto
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
 try {
     $stmt = $pdo->query("SELECT id, nome FROM fornecedores ORDER BY nome ASC");
     $fornecedores = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -6,6 +6,10 @@ if (!isset($_SESSION['cesta'])) {
     $_SESSION['cesta'] = [];
 }
 
+<<<<<<< HEAD
+=======
+// Ação de adicionar produto à cesta
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
 if (isset($_POST['acao']) && $_POST['acao'] === 'adicionar_cesta') {
     $id_prod = $_POST['produto_id'];
     $qtd = (int)($_POST['qtd_cesta'] ?? 1);
@@ -19,12 +23,20 @@ if (isset($_POST['acao']) && $_POST['acao'] === 'adicionar_cesta') {
     exit;
 }
 
+<<<<<<< HEAD
+=======
+// Ação de limpar a cesta
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
 if (isset($_GET['limpar_cesta'])) {
     $_SESSION['cesta'] = [];
     header("Location: produtos.php");
     exit;
 }
 
+<<<<<<< HEAD
+=======
+// Buscar produtos e dados dos fornecedores
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
 try {
     $sql = "SELECT p.*, f.nome AS nome_fornecedor 
             FROM produtos p 
@@ -59,6 +71,10 @@ try {
     <div class="container mb-5">
         <div class="row g-4">
             
+<<<<<<< HEAD
+=======
+            <!-- LISTA DE PRODUTOS -->
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">

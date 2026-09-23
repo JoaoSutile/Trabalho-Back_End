@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 
 session_start();
@@ -96,3 +97,11 @@ try {
 </body>
 
 </html>
+=======
+<?php 
+
+    echo"Teste";
+
+
+?>
+>>>>>>> fda6800a9a940e3a2b75bee789576666b5fe1923
