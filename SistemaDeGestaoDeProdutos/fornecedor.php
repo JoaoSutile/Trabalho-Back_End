@@ -47,7 +47,7 @@ try {
             <div class="d-flex align-items-center me-auto">
                 <a href="painel.php" class="btn btn-light btn-sm me-2">Painel</a>
                 <a href="cadastros.php" class="btn btn-light btn-sm me-2">Cadastros</a>
-                <a href="produtos.php" class="btn btn-light btn-sm me-2">Cesta</a>
+                <a href="cesta.php" class="btn btn-light btn-sm me-2">Cesta</a>
                 <a href="catalogo.php" class="btn btn-light btn-sm me-2">Catálogo</a>
             </div>
             <div class="dropdown user-dropdown">

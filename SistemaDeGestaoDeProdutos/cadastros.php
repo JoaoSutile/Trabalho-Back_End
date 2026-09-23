@@ -10,10 +10,92 @@ if (!isset($_SESSION["usuario_id"])) {
 
 }
 
+$mensagem = "";
+$tipoMensagem = "";
+$abaAtiva = "fornecedor";
+
+// Processamento do formulário de cadastro
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (isset($_POST['acao']) && $_POST['acao'] === 'cadastrar_fornecedor') {
+
+        $abaAtiva = "fornecedor";
+        $nome = trim($_POST['nome_fornecedor']);
+        $cnpj = trim($_POST['cnpj']);
+        $email = trim($_POST['email_fornecedor'] ?? '');
+        $telefone = trim($_POST['telefone'] ?? '');
+
+        if (!empty($nome) && !empty($cnpj)) {
+
+            try {
+
+                $stmt = $pdo->prepare("INSERT INTO fornecedores (nome, cnpj, email, telefone) VALUES (?, ?, ?, ?)");
+                if ($stmt->execute([$nome, $cnpj, $email, $telefone])) {
+
+                    $mensagem = "Fornecedor registrado com sucesso!";
+                    $tipoMensagem = "success";
+
+                }
+
+            } catch (PDOException $e) {
+
+                $mensagem = "Erro ao cadastrar fornecedor: " . $e->getMessage();
+                $tipoMensagem = "danger";
+
+            }
+
+        } else {
+
+            $mensagem = "Por favor, preencha todos os campos obrigatórios do fornecedor.";
+            $tipoMensagem = "warning";
+
+        }
+
+    } elseif (isset($_POST['acao']) && $_POST['acao'] === 'cadastrar_produto') {
+
+        $abaAtiva = "produto";
+        $nome = trim($_POST['nome_produto']);
+        $id_fornecedor = (int)$_POST['id_fornecedor'];
+        $preco = (float)$_POST['preco'];
+        $quantidade = (int)$_POST['quantidade'];
+        $categoria = trim($_POST['categoria'] ?? '');
+        $descricao = trim($_POST['descricao'] ?? '');
+
+        if (!empty($nome) && $id_fornecedor > 0 && $preco >= 0 && $quantidade >= 0) {
+
+            try {
+
+                $stmt = $pdo->prepare("INSERT INTO produtos (nome, id_fornecedor, preco, quantidade, categoria, descricao) VALUES (?, ?, ?, ?, ?, ?)");
+                if ($stmt->execute([$nome, $id_fornecedor, $preco, $quantidade, $categoria, $descricao])) {
+
+                    $mensagem = "Produto registrado com sucesso!";
+                    $tipoMensagem = "success";
+
+                }
+
+            } catch (PDOException $e) {
+
+                $mensagem = "Erro ao cadastrar produto: " . $e->getMessage();
+                $tipoMensagem = "danger";
+
+            }
+
+        } else {
+
+            $mensagem = "Por favor, preencha todos os campos obrigatórios do produto.";
+            $tipoMensagem = "warning";
+
+        }
+
+    }
+
+}
+
+// Carrega lista de fornecedores para o dropdown do cadastro de produtos
 try {
 
-    $stmt = $pdo->query("SELECT id, nome FROM fornecedores ORDER BY nome ASC");
-    $fornecedores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmtForn = $pdo->query("SELECT id, nome FROM fornecedores ORDER BY nome ASC");
+    $fornecedores = $stmtForn->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
 
@@ -28,7 +110,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão - Cadastros</title>
+    <title>Sistema de Gestão - Central de Cadastros</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .user-dropdown:hover .dropdown-menu {
@@ -45,117 +127,154 @@ try {
             <a class="navbar-brand fw-bold" href="painel.php">Gestão de Produtos</a>
             <div class="d-flex align-items-center me-auto">
                 <a href="painel.php" class="btn btn-light btn-sm me-2">Painel</a>
-                <a href="cadastros.php" class="btn btn-light btn-sm me-2">Cadastros</a>
-                <a href="produtos.php" class="btn btn-light btn-sm me-2">Cesta</a>
+                <a href="cadastros.php" class="btn btn-light btn-sm me-2 fw-semibold active">Cadastros</a>
                 <a href="catalogo.php" class="btn btn-light btn-sm me-2">Catálogo</a>
+                <a href="cesta.php" class="btn btn-light btn-sm me-2">Cesta</a>
             </div>
             <div class="dropdown user-dropdown">
                 <a href="#" class="text-white text-decoration-none dropdown-toggle fw-semibold" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                     <?php echo htmlspecialchars($_SESSION["usuario_nome"] ?? "Usuário"); ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownUser">
-                    <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                    <li>
+                        <span class="dropdown-item-text text-muted small">
+                            <strong>E-mail:</strong><br>
+                            <?php echo htmlspecialchars($_SESSION["usuario_email"] ?? "email@nao.informado"); ?>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger fw-semibold" href="login.html">Sair</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mb-5">
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white py-3">
-                        <ul class="nav nav-tabs card-header-tabs" id="gestaoTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active fw-semibold" id="produtos-tab" data-bs-toggle="tab" data-bs-target="#produtos" type="button" role="tab">Cadastrar Produto</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold" id="fornecedores-tab" data-bs-toggle="tab" data-bs-target="#fornecedores" type="button" role="tab">Cadastrar Fornecedor</button>
-                            </li>
-                        </ul>
+    <div class="container mb-5" style="max-width: 800px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold m-0">Central de Cadastros</h2>
+            <a href="painel.php" class="btn btn-outline-secondary btn-sm">Voltar ao Painel</a>
+        </div>
+
+        <?php if (!empty($mensagem)): ?>
+
+            <div class="alert alert-<?= $tipoMensagem; ?> alert-dismissible fade show shadow-sm" role="alert">
+                <?= htmlspecialchars($mensagem); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+        <?php endif; ?>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white pt-3 pb-0 border-bottom-0">
+                <ul class="nav nav-tabs card-header-tabs" id="cadastroTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?= $abaAtiva === 'fornecedor' ? 'active fw-bold' : ''; ?>" id="fornecedor-tab" data-bs-toggle="tab" data-bs-target="#fornecedor-pane" type="button" role="tab">
+                            1. Cadastrar Fornecedor
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?= $abaAtiva === 'produto' ? 'active fw-bold' : ''; ?>" id="produto-tab" data-bs-toggle="tab" data-bs-target="#produto-pane" type="button" role="tab">
+                            2. Cadastrar Produto
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="tab-content" id="cadastroTabsContent">
+
+                    <!-- ABA CADASTRO FORNECEDOR -->
+                    <div class="tab-pane fade <?= $abaAtiva === 'fornecedor' ? 'show active' : ''; ?>" id="fornecedor-pane" role="tabpanel">
+                        <form action="cadastros.php" method="POST">
+                            <input type="hidden" name="acao" value="cadastrar_fornecedor">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Razão Social / Nome <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="nome_fornecedor" placeholder="Ex: TechDistribuidora LTDA" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">CNPJ / CPF <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="cnpj" placeholder="00.000.000/0001-00" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">E-mail de Contato</label>
+                                    <input type="email" class="form-control" name="email_fornecedor" placeholder="contato@empresa.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Telefone / WhatsApp</label>
+                                    <input type="text" class="form-control" name="telefone" placeholder="(11) 98765-4321">
+                                </div>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn btn-success px-4">Cadastrar Fornecedor</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
 
-                    <div class="card-body p-4">
-                        <div class="tab-content" id="gestaoTabsContent">
+                    <!-- ABA CADASTRO PRODUTO -->
+                    <div class="tab-pane fade <?= $abaAtiva === 'produto' ? 'show active' : ''; ?>" id="produto-pane" role="tabpanel">
 
-                            <div class="tab-pane fade show active" id="produtos" role="tabpanel">
-                                <h4 class="card-title mb-4 text-primary">Novo Produto</h4>
-                                <form action="cadastrar_produto.php" method="POST">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="nome_produto" class="form-label">Nome do Produto</label>
-                                            <input type="text" class="form-control" id="nome_produto" name="nome_produto" placeholder="Ex: Teclado Mecânico RGB" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="id_fornecedor" class="form-label">Fornecedor</label>
-                                            <select class="form-select" id="id_fornecedor" name="id_fornecedor" required>
-                                                <option value="" selected disabled>Selecione um fornecedor...</option>
+                        <?php if (empty($fornecedores)): ?>
 
-                                                <?php foreach ($fornecedores as $fornecedor): ?>
-
-                                                    <option value="<?= $fornecedor['id']; ?>"><?= htmlspecialchars($fornecedor['nome']); ?></option>
-
-                                                <?php endforeach; ?>
-
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="preco" class="form-label">Preço (R$)</label>
-                                            <input type="number" step="0.01" class="form-control" id="preco" name="preco" placeholder="0.00" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="quantidade" class="form-label">Quantidade em Estoque</label>
-                                            <input type="number" class="form-control" id="quantidade" name="quantidade" placeholder="0" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="categoria" class="form-label">Categoria</label>
-                                            <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Ex: Periféricos">
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="descricao" class="form-label">Descrição do Produto</label>
-                                            <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Insira detalhes adicionais do produto..."></textarea>
-                                        </div>
-                                        <div class="col-12 text-end mt-4">
-                                            <button type="reset" class="btn btn-secondary me-2">Limpar</button>
-                                            <button type="submit" class="btn btn-primary">Salvar Produto</button>
-                                        </div>
-                                    </div>
-                                </form>
+                            <div class="alert alert-warning my-2" role="alert">
+                                <strong>Atenção:</strong> Você precisa cadastrar pelo menos um fornecedor na aba ao lado antes de registrar produtos.
                             </div>
 
-                            <div class="tab-pane fade" id="fornecedores" role="tabpanel">
-                                <h4 class="card-title mb-4 text-primary">Novo Fornecedor</h4>
-                                <form action="cadastrar_fornecedor.php" method="POST">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="nome_fornecedor" class="form-label">Razão Social / Nome</label>
-                                            <input type="text" class="form-control" id="nome_fornecedor" name="nome_fornecedor" placeholder="Ex: Tech Distribuidora LTDA" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="cnpj" class="form-label">CNPJ / CPF</label>
-                                            <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="00.000.000/0001-00" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="email_fornecedor" class="form-label">E-mail de Contato</label>
-                                            <input type="email" class="form-control" id="email_fornecedor" name="email_fornecedor" placeholder="contato@fornecedor.com">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="telefone" class="form-label">Telefone / WhatsApp</label>
-                                            <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(11) 99999-9999">
-                                        </div>
-                                        <div class="col-12 text-end mt-4">
-                                            <button type="reset" class="btn btn-secondary me-2">Limpar</button>
-                                            <button type="submit" class="btn btn-primary">Salvar Fornecedor</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                        <?php else: ?>
 
-                        </div>
+                            <form action="cadastros.php" method="POST">
+                                <input type="hidden" name="acao" value="cadastrar_produto">
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Nome do Produto <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="nome_produto" placeholder="Ex: Monitor Gamer 24" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Fornecedor <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="id_fornecedor" required>
+                                            <option value="" selected disabled>Selecione um fornecedor...</option>
+
+                                            <?php foreach ($fornecedores as $f): ?>
+
+                                                <option value="<?= $f['id']; ?>"><?= htmlspecialchars($f['nome']); ?></option>
+
+                                            <?php endforeach; ?>
+
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Preço (R$) <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" name="preco" placeholder="0.00" min="0" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Estoque Inicial <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="quantidade" placeholder="0" min="0" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Categoria</label>
+                                        <input type="text" class="form-control" name="categoria" placeholder="Ex: Eletrônicos">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">Descrição do Produto</label>
+                                        <textarea class="form-control" name="descricao" rows="3" placeholder="Insira detalhes técnicas do produto..."></textarea>
+                                    </div>
+                                    <div class="col-12 mt-4 text-end">
+                                        <button type="submit" class="btn btn-primary px-4">Cadastrar Produto</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        <?php endif; ?>
+
                     </div>
+
                 </div>
             </div>
         </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

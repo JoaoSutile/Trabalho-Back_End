@@ -10,6 +10,33 @@ if (!isset($_SESSION["usuario_id"])) {
 
 }
 
+if (!isset($_SESSION['cesta'])) {
+
+    $_SESSION['cesta'] = [];
+
+}
+
+$mensagemSucesso = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'adicionar_cesta') {
+
+    $id_prod = (int)$_POST['produto_id'];
+    $qtd = (int)($_POST['qtd_cesta'] ?? 1);
+
+    if (isset($_SESSION['cesta'][$id_prod])) {
+
+        $_SESSION['cesta'][$id_prod] += $qtd;
+
+    } else {
+
+        $_SESSION['cesta'][$id_prod] = $qtd;
+
+    }
+
+    $mensagemSucesso = "Produto adicionado à cesta!";
+
+}
+
 $busca = trim($_GET['busca'] ?? '');
 $categoria = trim($_GET['categoria'] ?? '');
 
@@ -83,21 +110,38 @@ try {
             <div class="d-flex align-items-center me-auto">
                 <a href="painel.php" class="btn btn-light btn-sm me-2">Painel</a>
                 <a href="cadastros.php" class="btn btn-light btn-sm me-2">Cadastros</a>
-                <a href="produtos.php" class="btn btn-light btn-sm me-2">Cesta</a>
                 <a href="catalogo.php" class="btn btn-light btn-sm me-2 fw-semibold active">Catálogo</a>
+                <a href="cesta.php" class="btn btn-light btn-sm me-2">Cesta</a>
             </div>
             <div class="dropdown user-dropdown">
                 <a href="#" class="text-white text-decoration-none dropdown-toggle fw-semibold" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                     <?php echo htmlspecialchars($_SESSION["usuario_nome"] ?? "Usuário"); ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownUser">
-                    <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                    <li>
+                        <span class="dropdown-item-text text-muted small">
+                            <strong>E-mail:</strong><br>
+                            <?php echo htmlspecialchars($_SESSION["usuario_email"] ?? "email@nao.informado"); ?>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger fw-semibold" href="login.html">Sair</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container mb-5">
+
+        <?php if (!empty($mensagemSucesso)): ?>
+
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <?= htmlspecialchars($mensagemSucesso); ?>
+                <a href="cesta.php" class="alert-link ms-2">Ver Cesta</a>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+        <?php endif; ?>
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <div>
@@ -170,7 +214,8 @@ try {
                                         <small class="text-muted d-block">Preço</small>
                                         <span class="fs-5 fw-bold text-primary">R$ <?= number_format($p['preco'], 2, ',', '.'); ?></span>
                                     </div>
-                                    <form action="produtos.php" method="POST" class="d-inline">
+
+                                    <form action="catalogo.php" method="POST" class="d-inline">
                                         <input type="hidden" name="acao" value="adicionar_cesta">
                                         <input type="hidden" name="produto_id" value="<?= $p['id']; ?>">
                                         <input type="hidden" name="qtd_cesta" value="1">

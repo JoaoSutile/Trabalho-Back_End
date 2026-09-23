@@ -144,16 +144,36 @@ try {
     $stmtAllForn = $pdo->query("SELECT id, nome FROM fornecedores ORDER BY nome ASC");
     $todosFornecedores = $stmtAllForn->fetchAll(PDO::FETCH_ASSOC);
 
+    $stmtPed = $pdo->query("SELECT p.*, u.nome AS nome_usuario, u.email AS email_usuario 
+                            FROM pedidos p 
+                            LEFT JOIN usuarios u ON p.id_usuario = u.id 
+                            ORDER BY p.data_pedido DESC");
+    $pedidosHistorico = $stmtPed->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($pedidosHistorico as &$ped) {
+
+        $stmtItens = $pdo->prepare("SELECT ip.*, prod.nome AS nome_produto 
+                                    FROM itens_pedido ip 
+                                    LEFT JOIN produtos prod ON ip.id_produto = prod.id 
+                                    WHERE ip.id_pedido = ?");
+        $stmtItens->execute([$ped['id']]);
+        $ped['itens'] = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
+
+    }
+    unset($ped);
+
 } catch (PDOException $e) {
 
     $produtos = [];
     $fornecedores = [];
     $todosFornecedores = [];
+    $pedidosHistorico = [];
 
 }
 
 $totalProdutos = count($produtos);
 $totalFornecedores = count($fornecedores);
+$totalPedidos = count($pedidosHistorico);
 
 ?>
 <!DOCTYPE html>
@@ -178,17 +198,24 @@ $totalFornecedores = count($fornecedores);
         <div class="container">
             <a class="navbar-brand fw-bold" href="painel.php">Gestão de Produtos</a>
             <div class="d-flex align-items-center me-auto">
-                <a href="painel.php" class="btn btn-light btn-sm me-2">Painel</a>
+                <a href="painel.php" class="btn btn-light btn-sm me-2 fw-semibold active">Painel</a>
                 <a href="cadastros.php" class="btn btn-light btn-sm me-2">Cadastros</a>
-                <a href="produtos.php" class="btn btn-light btn-sm me-2">Cesta</a>
                 <a href="catalogo.php" class="btn btn-light btn-sm me-2">Catálogo</a>
+                <a href="cesta.php" class="btn btn-light btn-sm me-2">Cesta</a>
             </div>
             <div class="dropdown user-dropdown">
                 <a href="#" class="text-white text-decoration-none dropdown-toggle fw-semibold" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                     <?php echo htmlspecialchars($_SESSION["usuario_nome"] ?? "Usuário"); ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownUser">
-                    <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                    <li>
+                        <span class="dropdown-item-text text-muted small">
+                            <strong>E-mail:</strong><br>
+                            <?php echo htmlspecialchars($_SESSION["usuario_email"] ?? "email@nao.informado"); ?>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger fw-semibold" href="login.html">Sair</a></li>
                 </ul>
             </div>
         </div>
@@ -221,7 +248,7 @@ $totalFornecedores = count($fornecedores);
             </form>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
 
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm h-100">
@@ -445,6 +472,70 @@ $totalFornecedores = count($fornecedores);
                 </div>
             </div>
 
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="card-title m-0 text-primary fw-bold">Histórico de Cestas Finalizadas</h4>
+                <span class="badge bg-info text-dark fs-6"><?= $totalPedidos; ?> Cesta(s)</span>
+            </div>
+            <div class="card-body p-4">
+
+                <?php if (empty($pedidosHistorico)): ?>
+
+                    <p class="text-muted m-0">Nenhum pedido/cesta foi finalizado até o momento.</p>
+
+                <?php else: ?>
+
+                    <div class="accordion" id="accordionPedidos">
+
+                        <?php foreach ($pedidosHistorico as $ped): ?>
+
+                            <div class="accordion-item mb-2 border rounded shadow-sm">
+                                <h2 class="accordion-header" id="headingPed<?= $ped['id']; ?>">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePed<?= $ped['id']; ?>" aria-expanded="false" aria-controls="collapsePed<?= $ped['id']; ?>">
+                                        <div class="d-flex justify-content-between align-items-center w-100 me-3 flex-wrap gap-2">
+                                            <span>
+                                                <strong>Pedido #<?= $ped['id']; ?></strong> &mdash; 
+                                                <small class="text-muted"><?= date('d/m/Y H:i', strtotime($ped['data_pedido'])); ?></small>
+                                            </span>
+                                            <span>
+                                                <strong>Cliente:</strong> <?= htmlspecialchars($ped['nome_usuario'] ?? 'N/A'); ?> 
+                                                <span class="badge bg-success ms-2 fs-6">R$ <?= number_format($ped['total'], 2, ',', '.'); ?></span>
+                                            </span>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapsePed<?= $ped['id']; ?>" class="accordion-collapse collapse" aria-labelledby="headingPed<?= $ped['id']; ?>" data-bs-parent="#accordionPedidos">
+                                    <div class="accordion-body bg-light">
+                                        <h6 class="fw-bold text-primary mb-3">Itens da Cesta:</h6>
+                                        <ul class="list-group">
+
+                                            <?php foreach ($ped['itens'] as $it): ?>
+
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong><?= htmlspecialchars($it['nome_produto'] ?? 'Produto Removido'); ?></strong>
+                                                        <br>
+                                                        <small class="text-muted">Quantidade: <?= $it['quantidade']; ?> un. &bull; Preço unitário: R$ <?= number_format($it['preco_unitario'], 2, ',', '.'); ?></small>
+                                                    </div>
+                                                    <span class="fw-bold text-dark">R$ <?= number_format($it['preco_unitario'] * $it['quantidade'], 2, ',', '.'); ?></span>
+                                                </li>
+
+                                            <?php endforeach; ?>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+            </div>
         </div>
 
     </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 23/09/2026 às 20:20
+-- Tempo de geração: 23/09/2026 às 21:16
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -48,6 +48,47 @@ INSERT INTO `fornecedores` (`id`, `nome`, `cnpj`, `email`, `telefone`, `created_
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `itens_pedido`
+--
+
+CREATE TABLE `itens_pedido` (
+  `id` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_produto` int(11) NOT NULL,
+  `quantidade` int(11) NOT NULL,
+  `preco_unitario` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `itens_pedido`
+--
+
+INSERT INTO `itens_pedido` (`id`, `id_pedido`, `id_produto`, `quantidade`, `preco_unitario`) VALUES
+(1, 1, 4, 1, 650.00);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `pedidos`
+--
+
+CREATE TABLE `pedidos` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `data_pedido` datetime DEFAULT current_timestamp(),
+  `total` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `pedidos`
+--
+
+INSERT INTO `pedidos` (`id`, `id_usuario`, `data_pedido`, `total`) VALUES
+(1, 1, '2026-09-23 16:15:06', 650.00);
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `produtos`
 --
 
@@ -71,7 +112,7 @@ INSERT INTO `produtos` (`id`, `nome`, `id_fornecedor`, `preco`, `quantidade`, `c
 (2, 'Monitor Gamer 24\" 144Hz', 2, 899.00, 8, 'Monitores', 'Monitor Full HD com painel IPS, 1ms de tempo de resposta e suporte FreeSync.', '2026-09-23 18:02:55'),
 (3, 'Mouse Sem Fio Ergonômico', 1, 119.50, 30, 'Periféricos', 'Mouse óptico recarregável via USB-C com ajuste de DPI ajustável.', '2026-09-23 18:03:40'),
 (4, 'Cadeira Ergonômica', 3, 650.00, 5, 'Móveis', 'Cadeira de escritório com suporte lombar, braços reguláveis e tecido mesh.', '2026-09-23 18:04:15'),
-(5, 'Headset Gamer 7.1 Surround', 2, 199.99, 20, 'Áudio', 'Headset com microfone antirruído e conexões USB e P2.', '2026-09-23 18:05:43');
+(5, 'Headset Gamer 7.1 Surround', 2, 199.99, 21, 'Áudio', 'Headset com microfone antirruído e conexões USB e P2.', '2026-09-23 18:05:43');
 
 -- --------------------------------------------------------
 
@@ -105,6 +146,19 @@ ALTER TABLE `fornecedores`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `itens_pedido`
+--
+ALTER TABLE `itens_pedido`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_pedido` (`id_pedido`);
+
+--
+-- Índices de tabela `pedidos`
+--
+ALTER TABLE `pedidos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `produtos`
 --
 ALTER TABLE `produtos`
@@ -129,6 +183,18 @@ ALTER TABLE `fornecedores`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de tabela `itens_pedido`
+--
+ALTER TABLE `itens_pedido`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `pedidos`
+--
+ALTER TABLE `pedidos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de tabela `produtos`
 --
 ALTER TABLE `produtos`
@@ -143,6 +209,12 @@ ALTER TABLE `usuarios`
 --
 -- Restrições para tabelas despejadas
 --
+
+--
+-- Restrições para tabelas `itens_pedido`
+--
+ALTER TABLE `itens_pedido`
+  ADD CONSTRAINT `itens_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `produtos`
