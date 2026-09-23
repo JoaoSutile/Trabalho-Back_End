@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["usuario_id"] = $usuario["id"];
                 $_SESSION["usuario_nome"] = $usuario["nome"];
 
-                echo "<script>alert('Login realizado com sucesso!'); window.location.href='cadastros.html';</script>";
+                echo "<script>alert('Login realizado com sucesso!'); window.location.href='cadastros.php';</script>";
 
             } else {
 
