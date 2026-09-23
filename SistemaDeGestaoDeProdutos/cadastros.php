@@ -13,18 +13,21 @@ try {
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão - Cadastros</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">Gestão de Produtos</a>
-            <div class="d-flex align-items-center text-white">               
+            <div class="d-flex align-items-center text-white">
+                <a href="produtos.php" class="btn btn-light btn-sm me-3">Ver Produtos / Cesta</a>
                 <a href="login.html" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>
@@ -126,4 +129,5 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
