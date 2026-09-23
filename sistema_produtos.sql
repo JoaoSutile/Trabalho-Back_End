@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 23/09/2026 às 19:57
+-- Tempo de geração: 23/09/2026 às 20:20
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -41,7 +41,9 @@ CREATE TABLE `fornecedores` (
 --
 
 INSERT INTO `fornecedores` (`id`, `nome`, `cnpj`, `email`, `telefone`, `created_at`) VALUES
-(1, 'TechDistribuidora Brasil LTDA', '12.345.678/0001-90', 'contato@techdistribuidora.com.br', '(11) 98765-4321', '2026-09-23 17:55:03');
+(1, 'TechDistribuidora Brasil LTDA', '12.345.678/0001-90', 'contato@techdistribuidora.com.br', '(11) 98765-4321', '2026-09-23 17:55:03'),
+(2, 'Nexus Eletrônicos Importação', '98.765.432/0001-10', 'vendas@nexuseletronicos.com.br', 'WhatsApp: (21) 99876', '2026-09-23 17:59:18'),
+(3, 'Móveis & Escritório S.A.', '45.678.912/0001-34', 'comercial@moveisescritorio.com.br', '(31) 97654-3210', '2026-09-23 17:59:49');
 
 -- --------------------------------------------------------
 
@@ -59,6 +61,17 @@ CREATE TABLE `produtos` (
   `descricao` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `produtos`
+--
+
+INSERT INTO `produtos` (`id`, `nome`, `id_fornecedor`, `preco`, `quantidade`, `categoria`, `descricao`, `created_at`) VALUES
+(1, 'Teclado Mecânico RGB', 1, 249.90, 15, 'Periféricos', 'Teclado mecânico switch azul com iluminação RGB e anti-ghosting.', '2026-09-23 18:01:01'),
+(2, 'Monitor Gamer 24\" 144Hz', 2, 899.00, 8, 'Monitores', 'Monitor Full HD com painel IPS, 1ms de tempo de resposta e suporte FreeSync.', '2026-09-23 18:02:55'),
+(3, 'Mouse Sem Fio Ergonômico', 1, 119.50, 30, 'Periféricos', 'Mouse óptico recarregável via USB-C com ajuste de DPI ajustável.', '2026-09-23 18:03:40'),
+(4, 'Cadeira Ergonômica', 3, 650.00, 5, 'Móveis', 'Cadeira de escritório com suporte lombar, braços reguláveis e tecido mesh.', '2026-09-23 18:04:15'),
+(5, 'Headset Gamer 7.1 Surround', 2, 199.99, 20, 'Áudio', 'Headset com microfone antirruído e conexões USB e P2.', '2026-09-23 18:05:43');
 
 -- --------------------------------------------------------
 
@@ -113,13 +126,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `fornecedores`
 --
 ALTER TABLE `fornecedores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `produtos`
 --
 ALTER TABLE `produtos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
