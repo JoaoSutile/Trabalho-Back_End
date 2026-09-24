@@ -1,6 +1,14 @@
 
 # Trabalho-Back_End
 
+## Participantes do sistema: 
+
+João Pedro Rosa Bortoloso --- RA: 60005901
+
+João Vitor Garcia Sutile --- RA 60005662
+
+---
+
 # Sistema de Gestão de Produtos e Fornecedores
 
 Um sistema web para gerenciamento de estoque, cadastro de fornecedores e simulação de cesta de compras.
