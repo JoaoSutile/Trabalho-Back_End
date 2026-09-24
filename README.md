@@ -12,4 +12,11 @@ Um sistema web para gerenciamento de estoque, cadastro de fornecedores e simula�
 **Gestão de Produtos:** Cadastro de produtos com preço, estoque, categoria, descrição e vinculação direta ao fornecedor responsável.
 **Cesta de Compras:** Interface de visualização de produtos cadastrados com funcionalidade para adicionar itens, calcular o valor total e gerenciar a cesta.
 
+## Modelagem (DER)
+
+Abaixo está a representação do Diagrama Entidade Relacionamento (DER) da aplicação:
+
+[DER](der_sistema.png)
+
+
 
